@@ -263,7 +263,7 @@ private fun HomeScreen(stars: Int, onSelect: (Page) -> Unit) {
             onSelect(Page.HEWAN)
         }
         MenuButton("🎮  Permainan", Color(0xFFFFD56A)) {
-            onSelect(Page.PERMainan)
+            onSelect(Page.PERMAINAN)
         }
         MenuButton("📖  Cerita Anak", Color(0xFF83D8D0)) {
             onSelect(Page.CERITA)
