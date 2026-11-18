@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -166,37 +167,83 @@ private fun AnakPintarApp() {
     var page by rememberSaveable { mutableStateOf(Page.HOME) }
     var stars by rememberSaveable { mutableIntStateOf(0) }
 
-    Surface(Modifier.fillMaxSize(), color = Color(0xFFFFF8E8)) {
-        Column(Modifier.fillMaxSize()) {
-            if (page != Page.HOME) {
-                Row(
-                    Modifier.fillMaxWidth()
-                        .background(Color(0xFF5B8DEF))
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "← Kembali",
-                        color = Color.White,
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable { page = Page.HOME }
-                    )
-                    Spacer(Modifier.weight(1f))
-                    Text("⭐ $stars", color = Color.White, fontSize = 18.sp)
+    Surface(Modifier.fillMaxSize(), color = Color.Transparent) {
+        Box(
+            Modifier.fillMaxSize().background(
+                Brush.verticalGradient(
+                    when (page) {
+                        Page.HOME -> listOf(
+                            Color(0xFF80D8FF),
+                            Color(0xFFE1F5FE),
+                            Color(0xFFFFF3D6)
+                        )
+                        Page.HURUF -> listOf(
+                            Color(0xFFB9F6CA),
+                            Color(0xFFE8F5E9)
+                        )
+                        Page.ANGKA -> listOf(
+                            Color(0xFFBBDEFB),
+                            Color(0xFFFFE0B2)
+                        )
+                        Page.BERHITUNG -> listOf(
+                            Color(0xFFA5D6A7),
+                            Color(0xFFE8F5E9)
+                        )
+                        Page.WARNA -> listOf(
+                            Color(0xFFF8BBD0),
+                            Color(0xFFE1BEE7)
+                        )
+                        Page.HEWAN -> listOf(
+                            Color(0xFFC8E6C9),
+                            Color(0xFFFFF9C4)
+                        )
+                        Page.PERMAINAN -> listOf(
+                            Color(0xFFFFE082),
+                            Color(0xFFFFCCBC)
+                        )
+                        Page.CERITA -> listOf(
+                            Color(0xFFB3E5FC),
+                            Color(0xFFD1C4E9)
+                        )
+                        Page.PRESTASI -> listOf(
+                            Color(0xFFFFE082),
+                            Color(0xFFFFF8E1)
+                        )
+                    }
+                )
+            )
+        ) {
+            Column(Modifier.fillMaxSize()) {
+                if (page != Page.HOME) {
+                    Row(
+                        Modifier.fillMaxWidth()
+                            .background(Color(0xFF5B8DEF))
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "← Kembali",
+                            color = Color.White,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.clickable { page = Page.HOME }
+                        )
+                        Spacer(Modifier.weight(1f))
+                        Text("⭐ $stars", color = Color.White, fontSize = 18.sp)
+                    }
                 }
-            }
 
-            when (page) {
-                Page.HOME -> HomeScreen(stars) { page = it }
-                Page.HURUF -> LetterScreen(::speak)
-                Page.ANGKA -> NumberScreen(::speak)
-                Page.BERHITUNG -> MathScreen(::speak) { stars++ }
-                Page.WARNA -> ColorScreen(::speak)
-                Page.HEWAN -> AnimalScreen(::speak)
-                Page.PERMAINAN -> GameScreen(::speak) { stars++ }
-                Page.CERITA -> StoryScreen(::speak)
-                Page.PRESTASI -> AwardScreen(stars)
+                when (page) {
+                    Page.HOME -> HomeScreen(stars) { page = it }
+                    Page.HURUF -> LetterScreen(::speak)
+                    Page.ANGKA -> NumberScreen(::speak)
+                    Page.BERHITUNG -> MathScreen(::speak) { stars++ }
+                    Page.WARNA -> ColorScreen(::speak)
+                    Page.HEWAN -> AnimalScreen(::speak)
+                    Page.PERMAINAN -> GameScreen(::speak) { stars++ }
+                    Page.CERITA -> StoryScreen(::speak)
+                    Page.PRESTASI -> AwardScreen(stars)
+                }
             }
         }
     }
