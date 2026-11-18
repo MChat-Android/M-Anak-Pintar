@@ -190,8 +190,7 @@ private fun AnakPintarApp() {
                 )
                 Page.WARNA -> ColorScreen(::speak)
                 Page.HEWAN -> AnimalScreen(::speak)
-                Page.PERMainanSafe() -> Unit
-                Page.PERMainan -> GameScreen(
+                Page.PERMAINAN -> GameScreen(
                     onSpeak = ::speak,
                     onCorrect = { stars++ }
                 )
