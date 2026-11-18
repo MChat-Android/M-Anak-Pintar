@@ -610,32 +610,116 @@ private fun GameScreen(onSpeak: (String) -> Unit, onCorrect: () -> Unit) {
     val choices = remember(question) {
         (letters.filter { it.letter != question.letter }.shuffled().take(3) + question).shuffled()
     }
+
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
+        Modifier.fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        PageHeading("Permainan Tebak Huruf", "Pilih huruf yang benar!")
-        Text("${question.word} dimulai dengan huruf apa?",
-            fontSize = 24.sp, textAlign = TextAlign.Center, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(20.dp))
-        choices.forEach { choice ->
-            Button(
-                onClick = {
-                    if (choice.letter == question.letter) {
-                        message = "Benar! Kamu pintar! ⭐"
-                        onCorrect()
-                        onSpeak("Benar! ${question.word} dimulai dengan huruf ${question.letter}")
-                        question = letters.random()
-                    } else {
-                        message = "Belum benar. Coba lagi!"
-                        onSpeak("Coba lagi")
+        PageHeading("Permainan Tebak Huruf", "Belajar bersama Neko!")
+
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Card(
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF246B45)
+                )
+            ) {
+                Column(
+                    Modifier.fillMaxWidth().padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        "PAPAN PERMAINAN",
+                        color = Color(0xFFFFE082),
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        "${question.word} dimulai dengan huruf apa?",
+                        color = Color.White,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 25.sp
+                    )
+                    Spacer(Modifier.height(14.dp))
+
+                    choices.chunked(2).forEach { rowChoices ->
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            rowChoices.forEach { choice ->
+                                Button(
+                                    onClick = {
+                                        if (choice.letter == question.letter) {
+                                            message = "Benar! Kamu pintar! ⭐"
+                                            onCorrect()
+                                            onSpeak("Benar! ${question.word} dimulai dengan huruf ${question.letter}")
+                                            question = letters.random()
+                                        } else {
+                                            message = "Belum benar. Coba lagi!"
+                                            onSpeak("Coba lagi")
+                                        }
+                                    },
+                                    modifier = Modifier.weight(1f).padding(vertical = 3.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFFFFD166),
+                                        contentColor = Color(0xFF26334A)
+                                    )
+                                ) {
+                                    Text(
+                                        choice.letter,
+                                        fontSize = 23.sp,
+                                        fontWeight = FontWeight.ExtraBold
+                                    )
+                                }
+                            }
+                        }
                     }
-                },
-                Modifier.fillMaxWidth().padding(vertical = 5.dp)
-            ) { Text(choice.letter, fontSize = 26.sp) }
+
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        message,
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier.width(76.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text("🐱", fontSize = 55.sp)
+                Text(
+                    "Neko",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color(0xFF3159A8)
+                )
+                Text(
+                    "Ayo jawab!",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF3159A8),
+                    textAlign = TextAlign.Center
+                )
+                Text("👉", fontSize = 27.sp)
+            }
         }
-        Spacer(Modifier.height(12.dp))
-        Text(message, fontSize = 18.sp, fontWeight = FontWeight.Bold)
     }
 }
 
