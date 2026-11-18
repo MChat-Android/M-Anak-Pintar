@@ -361,12 +361,6 @@ private fun NumberScreen(speak: (String) -> Unit) {
         ) {
             Text(number.toString(), fontSize = 95.sp, fontWeight = FontWeight.Bold)
             Text(word, fontSize = 27.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(8.dp))
-            Text(
-                numberIllustration(number),
-                fontSize = 92.sp,
-                textAlign = TextAlign.Center
-            )
             Spacer(Modifier.height(12.dp))
             SpeechButton("Dengarkan") {
                 speak("$number, $word")
