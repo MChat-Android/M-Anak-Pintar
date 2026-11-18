@@ -5,6 +5,15 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+import java.util.Base64
+
+val keystoreFile = layout.buildDirectory.file("m-anak-pintar.jks").get().asFile
+
+val keystoreBase64 = System.getenv("KEYSTORE_BASE64")
+if (!keystoreBase64.isNullOrBlank()) {
+    keystoreFile.writeBytes(Base64.getDecoder().decode(keystoreBase64))
+}
+
 android {
     namespace = "com.m.anakpintar"
     compileSdk = 35
@@ -13,8 +22,26 @@ android {
         applicationId = "com.m.anakpintar"
         minSdk = 23
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
+    }
+
+    signingConfigs {
+        create("permanent") {
+            storeFile = keystoreFile
+            storePassword = System.getenv("KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("KEY_ALIAS")
+            keyPassword = System.getenv("KEY_PASSWORD")
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("permanent")
+        }
+        release {
+            signingConfig = signingConfigs.getByName("permanent")
+        }
     }
 
     compileOptions {
