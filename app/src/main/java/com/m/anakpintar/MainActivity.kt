@@ -97,6 +97,31 @@ private fun letterIllustration(word: String): String = when (word) {
     else -> "🌟"
 }
 
+private fun numberIllustration(number: Int): String = when (number) {
+    1 -> "🍎"
+    2 -> "🧸"
+    3 -> "🎈"
+    4 -> "🚗"
+    5 -> "⭐"
+    6 -> "🐟"
+    7 -> "🦋"
+    8 -> "🍊"
+    9 -> "⚽"
+    10 -> "🐱"
+    else -> when (number % 10) {
+        1 -> "🍎"
+        2 -> "🧸"
+        3 -> "🎈"
+        4 -> "🚗"
+        5 -> "⭐"
+        6 -> "🐟"
+        7 -> "🦋"
+        8 -> "🍊"
+        9 -> "⚽"
+        else -> "🐱"
+    }
+}
+
 private fun numberWords(n: Int): String {
     val units = listOf(
         "nol", "satu", "dua", "tiga", "empat", "lima",
@@ -322,30 +347,46 @@ private fun LetterScreen(speak: (String) -> Unit) {
 @Composable
 private fun NumberScreen(speak: (String) -> Unit) {
     var number by rememberSaveable { mutableIntStateOf(1) }
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    val word = numberWords(number)
+
+    Card(
+        Modifier.fillMaxWidth().padding(20.dp),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFDDAA))
     ) {
-        PageHeading("Belajar Angka", "Kenali angka 1 sampai 100")
-        LearningIllustration("🎈  1️⃣  2️⃣  3️⃣  🧸",
-            "Ayo kenali angka sambil bermain!", Color(0xFFD8F1FF))
-        Card(
-            Modifier.fillMaxWidth(), shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFDDAA))
+        Column(
+            Modifier.fillMaxWidth().padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(Modifier.padding(30.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(number.toString(), fontSize = 95.sp, fontWeight = FontWeight.Bold)
-                Text(numberWords(number), fontSize = 27.sp)
-                Spacer(Modifier.height(14.dp))
-                SpeechButton("Dengarkan") { speak(numberWords(number)) }
+            Text(number.toString(), fontSize = 95.sp, fontWeight = FontWeight.Bold)
+            Text(word, fontSize = 27.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+            Text(
+                numberIllustration(number),
+                fontSize = 92.sp,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(12.dp))
+            SpeechButton("Dengarkan") {
+                speak("$number, $word")
             }
+            Spacer(Modifier.height(10.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(
+                    enabled = number > 1,
+                    onClick = { number-- }
+                ) {
+                    Text("Sebelumnya")
+                }
+                Button(
+                    enabled = number < 100,
+                    onClick = { number++ }
+                ) {
+                    Text("Berikutnya")
+                }
+            }
+            Text("Angka $number dari 100", Modifier.padding(top = 8.dp))
         }
-        Spacer(Modifier.height(20.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            Button(enabled = number > 1, onClick = { number-- }) { Text("Sebelumnya") }
-            Button(enabled = number < 100, onClick = { number++ }) { Text("Berikutnya") }
-        }
-        Text("Angka $number dari 100", Modifier.padding(12.dp))
     }
 }
 
