@@ -144,7 +144,7 @@ private fun AnakPintarApp() {
     DisposableEffect(context) {
         val engine = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
-                engineLanguage(engine)
+                engineLanguage(speechengine)
                 speechReady = true
             }
         }
