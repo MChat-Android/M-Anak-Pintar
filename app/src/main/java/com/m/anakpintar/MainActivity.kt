@@ -386,20 +386,87 @@ private fun NumberScreen(speak: (String) -> Unit) {
 }
 
 @Composable
+private fun MathObjectGroup(count: Int, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFFF1D6)
+        )
+    ) {
+        Column(
+            Modifier.fillMaxWidth().padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "$count apel",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(6.dp))
+
+            (1..count).toList().chunked(5).forEach { group ->
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    group.forEach {
+                        Text("🍎", fontSize = 27.sp)
+                        Spacer(Modifier.width(2.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun MathScreen(onSpeak: (String) -> Unit, onCorrect: () -> Unit) {
     var question by remember { mutableStateOf(newMathQuestion()) }
     var message by remember { mutableStateOf("Pilih jawaban yang benar!") }
+
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
+        Modifier.fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         PageHeading("Belajar Berhitung", "Ayo berlatih matematika!")
-        LearningIllustration("🍎  🍎  +  🍎  =  ?",
-            "Hitung benda-benda di sekitarmu!", Color(0xFFE8D9FF))
-        Text("${question.first} ${question.symbol} ${question.second} = ?",
-            fontSize = 42.sp, fontWeight = FontWeight.ExtraBold,
-            color = Color(0xFF3159A8))
+
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            MathObjectGroup(
+                question.first,
+                Modifier.weight(1f)
+            )
+
+            Text(
+                question.symbol,
+                fontSize = 30.sp,
+                fontWeight = FontWeight.ExtraBold
+            )
+
+            MathObjectGroup(
+                question.second,
+                Modifier.weight(1f)
+            )
+        }
+
         Spacer(Modifier.height(18.dp))
+
+        Text(
+            "${question.first} ${question.symbol} ${question.second} = ?",
+            fontSize = 36.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = Color(0xFF3159A8),
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(Modifier.height(18.dp))
+
         question.choices.forEach { choice ->
             Button(
                 onClick = {
@@ -414,8 +481,11 @@ private fun MathScreen(onSpeak: (String) -> Unit, onCorrect: () -> Unit) {
                     }
                 },
                 Modifier.fillMaxWidth().padding(vertical = 5.dp)
-            ) { Text(choice.toString(), fontSize = 23.sp) }
+            ) {
+                Text(choice.toString(), fontSize = 23.sp)
+            }
         }
+
         Spacer(Modifier.height(12.dp))
         Text(message, fontSize = 18.sp, fontWeight = FontWeight.Bold)
     }
