@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -426,38 +427,90 @@ private fun MathScreen(onSpeak: (String) -> Unit, onCorrect: () -> Unit) {
     }
 }
 
+private data class ColorItem(
+    val name: String,
+    val color: Color
+)
+
 @Composable
 private fun ColorScreen(speak: (String) -> Unit) {
     val colors = listOf(
-        Triple("Merah", "🔴", Color(0xFFE53935)),
-        Triple("Biru", "🔵", Color(0xFF1976D2)),
-        Triple("Kuning", "🟡", Color(0xFFFFD600)),
-        Triple("Hijau", "🟢", Color(0xFF43A047)),
-        Triple("Ungu", "🟣", Color(0xFF8E24AA)),
-        Triple("Jingga", "🟠", Color(0xFFEF6C00)),
-        Triple("Merah muda", "🌸", Color(0xFFF48FB1)),
-        Triple("Cokelat", "🟤", Color(0xFF795548)),
-        Triple("Hitam", "⚫", Color(0xFF212121)),
-        Triple("Putih", "⚪", Color.White)
+        ColorItem("Merah", Color(0xFFE53935)),
+        ColorItem("Biru", Color(0xFF1976D2)),
+        ColorItem("Kuning", Color(0xFFFFD600)),
+        ColorItem("Hijau", Color(0xFF43A047)),
+        ColorItem("Ungu", Color(0xFF8E24AA)),
+        ColorItem("Jingga", Color(0xFFEF6C00)),
+        ColorItem("Merah muda", Color(0xFFF48FB1)),
+        ColorItem("Cokelat", Color(0xFF795548)),
+        ColorItem("Hitam", Color(0xFF212121)),
+        ColorItem("Putih", Color.White)
     )
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        PageHeading("Belajar Warna", "Tekan warna untuk mendengarkan namanya")
-        colors.forEach { (name, emoji, color) ->
-            val textColor = if (name in listOf("Putih", "Kuning", "Merah muda")) Color.Black else Color.White
-            Card(
-                Modifier.fillMaxWidth().padding(vertical = 5.dp).clickable { speak(name) },
-                colors = CardDefaults.cardColors(containerColor = color),
-                shape = RoundedCornerShape(16.dp)
+
+    var index by rememberSaveable { mutableIntStateOf(0) }
+    val item = colors[index]
+    val textColor = if (item.name in listOf(
+            "Kuning", "Merah muda", "Putih"
+        )) Color.Black else Color.White
+
+    Card(
+        Modifier.fillMaxWidth().padding(20.dp),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF3DDF0))
+    ) {
+        Column(
+            Modifier.fillMaxWidth().padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                item.name,
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(22.dp))
+            Box(
+                Modifier.size(190.dp)
+                    .background(item.color, CircleShape),
+                contentAlignment = Alignment.Center
             ) {
-                Row(Modifier.padding(15.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(emoji, fontSize = 30.sp)
-                    Spacer(Modifier.width(15.dp))
-                    Text(name, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = textColor)
-                    Spacer(Modifier.weight(1f))
-                    Text("🔊", fontSize = 23.sp)
+                if (item.name == "Putih") {
+                    Text(
+                        "PUTIH",
+                        color = Color.Gray,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
+            Spacer(Modifier.height(22.dp))
+            SpeechButton("Dengarkan") {
+                speak(item.name)
+            }
+            Spacer(Modifier.height(14.dp))
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    enabled = index > 0,
+                    onClick = { index-- },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Sebelumnya")
+                }
+                Button(
+                    enabled = index < colors.lastIndex,
+                    onClick = { index++ },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Berikutnya")
+                }
+            }
+            Text(
+                "Warna ${index + 1} dari ${colors.size}",
+                Modifier.padding(top = 12.dp)
+            )
         }
     }
 }
