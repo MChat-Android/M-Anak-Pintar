@@ -1,3 +1,4 @@
+
 package com.m.anakpintar
 
 import android.os.Bundle
@@ -66,6 +67,36 @@ private val letters = listOf(
     LetterItem("Y", "Yoyo"), LetterItem("Z", "Zebra")
 )
 
+private fun letterIllustration(word: String): String = when (word) {
+    "Apel" -> "🍎"
+    "Bola" -> "⚽"
+    "Cicak" -> "🦎"
+    "Domba" -> "🐑"
+    "Elang" -> "🦅"
+    "Foto" -> "📷"
+    "Gajah" -> "🐘"
+    "Harimau" -> "🐯"
+    "Ikan" -> "🐟"
+    "Jeruk" -> "🍊"
+    "Kucing" -> "🐱"
+    "Lemon" -> "🍋"
+    "Mobil" -> "🚗"
+    "Nanas" -> "🍍"
+    "Obat" -> "💊"
+    "Pisang" -> "🍌"
+    "Quran" -> "📖"
+    "Rumah" -> "🏠"
+    "Sapi" -> "🐄"
+    "Topi" -> "🧢"
+    "Ular" -> "🐍"
+    "Vas" -> "🏺"
+    "Wortel" -> "🥕"
+    "Xilofon" -> "🎼"
+    "Yoyo" -> "🪀"
+    "Zebra" -> "🦓"
+    else -> "🌟"
+}
+
 private fun numberWords(n: Int): String {
     val units = listOf(
         "nol", "satu", "dua", "tiga", "empat", "lima",
@@ -99,7 +130,7 @@ private fun AnakPintarApp() {
     DisposableEffect(context) {
         val engine = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
-                speechEngine?.language = Locale("id", "ID")
+                engineLanguage(speechEngine)
                 speechReady = true
             }
         }
@@ -155,6 +186,10 @@ private fun AnakPintarApp() {
             }
         }
     }
+}
+
+private fun engineLanguage(engine: TextToSpeech?) {
+    engine?.language = Locale("id", "ID")
 }
 
 @Composable
@@ -239,34 +274,48 @@ private fun SpeechButton(text: String, onClick: () -> Unit) {
 private fun LetterScreen(speak: (String) -> Unit) {
     var index by rememberSaveable { mutableIntStateOf(0) }
     val item = letters[index]
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFBCE7FF)),
+        shape = RoundedCornerShape(28.dp),
+        modifier = Modifier.fillMaxWidth().padding(20.dp)
     ) {
-        PageHeading("Belajar Huruf", "Kenali huruf A sampai Z")
-        LearningIllustration("📚  🔤  🍎  🧒",
-            "A untuk Apel • B untuk Bola • C untuk Cicak", Color(0xFFFFE8A8))
-        Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFBCE7FF)),
-            shape = RoundedCornerShape(28.dp), modifier = Modifier.fillMaxWidth()
+        Column(
+            Modifier.fillMaxWidth().padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(Modifier.padding(28.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(item.letter, fontSize = 105.sp, fontWeight = FontWeight.Bold)
-                Text("${item.letter} untuk ${item.word}", fontSize = 25.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(12.dp))
-                SpeechButton("Dengarkan") { speak("${item.letter}, untuk ${item.word}") }
+            Text(item.letter, fontSize = 105.sp, fontWeight = FontWeight.Bold)
+            Text(
+                "${item.letter} untuk ${item.word}",
+                fontSize = 25.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                letterIllustration(item.word),
+                fontSize = 92.sp,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(12.dp))
+            SpeechButton("Dengarkan") {
+                speak("${item.letter}, untuk ${item.word}")
             }
+            Spacer(Modifier.height(10.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(onClick = {
+                    index = if (index == 0) 25 else index - 1
+                }) {
+                    Text("Sebelumnya")
+                }
+                Button(onClick = {
+                    index = if (index == 25) 0 else index + 1
+                }) {
+                    Text("Berikutnya")
+                }
+            }
+            Text("${index + 1} dari 26 huruf", Modifier.padding(top = 8.dp))
         }
-        Spacer(Modifier.height(20.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(15.dp)) {
-            Button(onClick = { index = if (index == 0) 25 else index - 1 }) {
-                Text("Sebelumnya")
-            }
-            Button(onClick = { index = if (index == 25) 0 else index + 1 }) {
-                Text("Berikutnya")
-            }
-        }
-        Text("${index + 1} dari 26 huruf", Modifier.padding(12.dp))
     }
 }
 
