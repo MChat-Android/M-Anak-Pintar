@@ -5,15 +5,6 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-import java.util.Base64
-
-val keystoreFile = layout.buildDirectory.file("m-anak-pintar.jks").get().asFile
-
-val keystoreBase64 = System.getenv("KEYSTORE_BASE64")
-if (!keystoreBase64.isNullOrBlank()) {
-    keystoreFile.writeBytes(Base64.getDecoder().decode(keystoreBase64))
-}
-
 android {
     namespace = "com.m.anakpintar"
     compileSdk = 35
@@ -28,10 +19,10 @@ android {
 
     signingConfigs {
         create("permanent") {
-            storeFile = keystoreFile
-            storePassword = System.getenv("KEYSTORE_PASSWORD")
-            keyAlias = System.getenv("KEY_ALIAS")
-            keyPassword = System.getenv("KEY_PASSWORD")
+            storeFile = file("keystore.jks")
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+            keyAlias = System.getenv("KEY_ALIAS") ?: ""
+            keyPassword = System.getenv("KEY_PASSWORD") ?: ""
         }
     }
 
