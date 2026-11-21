@@ -1,4 +1,3 @@
-
 package com.m.anakpintar
 
 import android.os.Bundle
@@ -35,7 +34,8 @@ class MainActivity : ComponentActivity() {
 }
 
 private enum class Page {
-    HOME, HURUF, ANGKA, BERHITUNG, WARNA, HEWAN, PERMAINAN, HIJAIYAH, PRESTASI
+    HOME, HURUF, ANGKA, BERHITUNG, WARNA, HEWAN,
+    PERMAINAN, HIJAIYAH, PRESTASI, NEKO_TEST
 }
 
 private data class LetterItem(val letter: String, val word: String)
@@ -125,17 +125,28 @@ private fun newMathQuestion(): MathQuestion {
 private fun AnakPintarApp() {
     val context = LocalContext.current
     val nekoVoice = remember(context) { NekoVoice(context) }
+    val nekoSound = remember(context) { NekoSound(context) }
 
-    DisposableEffect(nekoVoice) {
-        onDispose { nekoVoice.release() }
+    DisposableEffect(nekoVoice, nekoSound) {
+        onDispose {
+            nekoVoice.release()
+            nekoSound.release()
+        }
     }
 
     val speak: (String) -> Unit = { nekoVoice.speak(it) }
+    val playNekoSound: (NekoSoundType) -> Unit = {
+        nekoVoice.stop()
+        nekoSound.play(it)
+    }
+    val stopNekoSound: () -> Unit = { nekoSound.stop() }
+
     var page by rememberSaveable { mutableStateOf(Page.HOME) }
     var stars by rememberSaveable { mutableIntStateOf(0) }
 
     BackHandler(enabled = page != Page.HOME) {
         nekoVoice.stop()
+        nekoSound.stop()
         page = Page.HOME
     }
 
@@ -149,6 +160,7 @@ private fun AnakPintarApp() {
         Page.PERMAINAN -> listOf(Color(0xFFFFE082), Color(0xFFFFCCBC))
         Page.HIJAIYAH -> listOf(Color(0xFFB3E5FC), Color(0xFFD1C4E9))
         Page.PRESTASI -> listOf(Color(0xFFFFE082), Color(0xFFFFF8E1))
+        Page.NEKO_TEST -> listOf(Color(0xFFFFE0B2), Color(0xFFFFF3E0))
     }
 
     Surface(Modifier.fillMaxSize(), color = Color.Transparent) {
@@ -157,6 +169,7 @@ private fun AnakPintarApp() {
                 when (page) {
                     Page.HOME -> HomeScreen(stars) {
                         nekoVoice.stop()
+                        nekoSound.stop()
                         page = it
                         if (it == Page.HOME) speak("Halo, teman! Aku Neko! Ayo belajar!")
                     }
@@ -168,6 +181,7 @@ private fun AnakPintarApp() {
                     Page.PERMAINAN -> GameScreen(speak) { stars++ }
                     Page.HIJAIYAH -> HijaiyahScreen(speak)
                     Page.PRESTASI -> AwardScreen(stars)
+                    Page.NEKO_TEST -> NekoTestScreen(playNekoSound, stopNekoSound)
                 }
             }
         }
@@ -245,6 +259,7 @@ private fun HomeScreen(stars: Int, onSelect: (Page) -> Unit) {
         Text("PILIH KEGIATAN BELAJAR", fontSize = 17.sp,
             fontWeight = FontWeight.Black, color = Color(0xFF174A91))
         Spacer(Modifier.height(11.dp))
+
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
             HomeTile("🔤", "Belajar\nHuruf", Color(0xFFFF9BCB), Color(0xFFE95B9E),
                 Modifier.weight(1f)) { onSelect(Page.HURUF) }
@@ -271,6 +286,14 @@ private fun HomeScreen(stars: Int, onSelect: (Page) -> Unit) {
             HomeTile("⭐", "Bintang\nSaya", Color(0xFFFFE58B), Color(0xFFE7B83B),
                 Modifier.weight(1f)) { onSelect(Page.PRESTASI) }
         }
+
+        Spacer(Modifier.height(10.dp))
+        Row(Modifier.fillMaxWidth()) {
+            HomeTile("🔊", "Tes Suara\nNeko", Color(0xFFFFD0A6), Color(0xFFEF9A55),
+                Modifier.weight(1f)) { onSelect(Page.NEKO_TEST) }
+            Spacer(Modifier.weight(2f))
+        }
+
         Spacer(Modifier.height(17.dp))
         Card(shape = RoundedCornerShape(30.dp),
             colors = CardDefaults.cardColors(containerColor = Color(0xAAFFFFFF))) {
@@ -329,6 +352,43 @@ private fun SpeechButton(text: String, onClick: () -> Unit) {
     Button(onClick = onClick,
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4779D5))) {
         Text("🔊 $text", fontSize = 17.sp)
+    }
+}
+
+@Composable
+private fun NekoTestScreen(
+    playSound: (NekoSoundType) -> Unit,
+    stopSound: () -> Unit
+) {
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        PageHeading("Tes Suara Neko", "Pilih suara yang ingin didengarkan")
+        Text("🐱", fontSize = 90.sp)
+
+        val sounds = listOf(
+            NekoSoundType.HALO to "Halo, teman!",
+            NekoSoundType.BENAR to "Jawaban benar",
+            NekoSoundType.SALAH to "Coba lagi",
+            NekoSoundType.SEMANGAT to "Semangat!",
+            NekoSoundType.PINTAR to "Kamu pintar!",
+            NekoSoundType.SELAMAT to "Selamat!"
+        )
+
+        sounds.forEach { (type, label) ->
+            Button(
+                onClick = { playSound(type) },
+                modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp)
+            ) {
+                Text("🔊 $label", fontSize = 18.sp)
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+        OutlinedButton(onClick = stopSound) {
+            Text("⏹ Hentikan suara")
+        }
     }
 }
 
@@ -393,17 +453,13 @@ private fun HijaiyahScreen(speak: (String) -> Unit) {
                         onClick = { index-- },
                         modifier = Modifier.weight(1f),
                         enabled = index > 0
-                    ) {
-                        Text("Sebelumnya")
-                    }
+                    ) { Text("Sebelumnya") }
 
                     Button(
                         onClick = { index++ },
                         modifier = Modifier.weight(1f),
                         enabled = index < hijaiyahLetters.lastIndex
-                    ) {
-                        Text("Berikutnya")
-                    }
+                    ) { Text("Berikutnya") }
                 }
             }
         }
@@ -557,17 +613,13 @@ private fun ColorScreen(speak: (String) -> Unit) {
                     onClick = { index-- },
                     modifier = Modifier.weight(1f),
                     enabled = index > 0
-                ) {
-                    Text("Sebelumnya")
-                }
+                ) { Text("Sebelumnya") }
 
                 Button(
                     onClick = { index++ },
                     modifier = Modifier.weight(1f),
                     enabled = index < colors.lastIndex
-                ) {
-                    Text("Berikutnya")
-                }
+                ) { Text("Berikutnya") }
             }
             Text("Warna ${index + 1} dari ${colors.size}", Modifier.padding(top = 12.dp))
         }
