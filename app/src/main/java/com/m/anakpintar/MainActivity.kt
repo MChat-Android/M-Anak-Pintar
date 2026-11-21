@@ -1,3 +1,4 @@
+
 package com.m.anakpintar
 
 import android.os.Bundle
@@ -152,9 +153,7 @@ private fun AnakPintarApp() {
 
     Surface(Modifier.fillMaxSize(), color = Color.Transparent) {
         Box(Modifier.fillMaxSize().background(Brush.verticalGradient(bg))) {
-            Column(
-                Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()
-            ) {
+            Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
                 when (page) {
                     Page.HOME -> HomeScreen(stars) {
                         nekoVoice.stop()
@@ -282,7 +281,9 @@ private fun HomeScreen(stars: Int, onSelect: (Page) -> Unit) {
         }
         Spacer(Modifier.height(54.dp))
     }
-}@Composable
+}
+
+@Composable
 private fun HomeTile(
     icon: String, title: String, topColor: Color, bottomColor: Color,
     modifier: Modifier = Modifier, onClick: () -> Unit
@@ -388,11 +389,21 @@ private fun HijaiyahScreen(speak: (String) -> Unit) {
                 SpeechButton("Dengarkan") { speak(item.name) }
                 Spacer(Modifier.height(12.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Button(Modifier.weight(1f), enabled = index > 0, onClick = { index-- }) {
+                    Button(
+                        onClick = { index-- },
+                        modifier = Modifier.weight(1f),
+                        enabled = index > 0
+                    ) {
                         Text("Sebelumnya")
                     }
-                    Button(Modifier.weight(1f), enabled = index < hijaiyahLetters.lastIndex,
-                        onClick = { index++ }) { Text("Berikutnya") }
+
+                    Button(
+                        onClick = { index++ },
+                        modifier = Modifier.weight(1f),
+                        enabled = index < hijaiyahLetters.lastIndex
+                    ) {
+                        Text("Berikutnya")
+                    }
                 }
             }
         }
@@ -471,6 +482,7 @@ private fun MathObjectGroup(count: Int, modifier: Modifier = Modifier) {
         }
     }
 }
+
 @Composable
 private fun MathScreen(onSpeak: (String) -> Unit, onCorrect: () -> Unit) {
     var question by remember { mutableStateOf(newMathQuestion()) }
@@ -508,7 +520,9 @@ private fun MathScreen(onSpeak: (String) -> Unit, onCorrect: () -> Unit) {
         Spacer(Modifier.height(12.dp))
         Text(message, fontSize = 18.sp, fontWeight = FontWeight.Bold)
     }
-}@Composable
+}
+
+@Composable
 private fun ColorScreen(speak: (String) -> Unit) {
     val colors = listOf(
         ColorItem("Merah", Color(0xFFE53935)),
@@ -539,11 +553,21 @@ private fun ColorScreen(speak: (String) -> Unit) {
             SpeechButton("Dengarkan") { speak("Warna ${item.name}") }
             Spacer(Modifier.height(14.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Button(Modifier.weight(1f), enabled = index > 0, onClick = { index-- }) {
+                Button(
+                    onClick = { index-- },
+                    modifier = Modifier.weight(1f),
+                    enabled = index > 0
+                ) {
                     Text("Sebelumnya")
                 }
-                Button(Modifier.weight(1f), enabled = index < colors.lastIndex,
-                    onClick = { index++ }) { Text("Berikutnya") }
+
+                Button(
+                    onClick = { index++ },
+                    modifier = Modifier.weight(1f),
+                    enabled = index < colors.lastIndex
+                ) {
+                    Text("Berikutnya")
+                }
             }
             Text("Warna ${index + 1} dari ${colors.size}", Modifier.padding(top = 12.dp))
         }
@@ -647,6 +671,7 @@ private fun GameScreen(onSpeak: (String) -> Unit, onCorrect: () -> Unit) {
         }
     }
 }
+
 @Composable
 private fun AwardScreen(stars: Int) {
     Column(Modifier.fillMaxSize().padding(22.dp),
