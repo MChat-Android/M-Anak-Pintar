@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
 
 private enum class Page {
     HOME, HURUF, ANGKA, BERHITUNG, WARNA, HEWAN,
-    PERMAINAN, CERITA, PRESTASI
+    PERMAINAN, HIJAIYAH, PRESTASI
 }
 
 private data class LetterItem(val letter: String, val word: String)
@@ -54,6 +54,8 @@ private data class MathQuestion(
     val answer: Int,
     val choices: List<Int>
 )
+
+private data class HijaiyahItem(val letter: String, val name: String)
 
 private val letters = listOf(
     LetterItem("A", "Apel"), LetterItem("B", "Bola"),
@@ -69,6 +71,38 @@ private val letters = listOf(
     LetterItem("U", "Ular"), LetterItem("V", "Vas"),
     LetterItem("W", "Wortel"), LetterItem("X", "Xilofon"),
     LetterItem("Y", "Yoyo"), LetterItem("Z", "Zebra")
+)
+
+private val hijaiyahLetters = listOf(
+    HijaiyahItem("ا", "Alif"),
+    HijaiyahItem("ب", "Ba"),
+    HijaiyahItem("ت", "Ta"),
+    HijaiyahItem("ث", "Tsa"),
+    HijaiyahItem("ج", "Jim"),
+    HijaiyahItem("ح", "Ha"),
+    HijaiyahItem("خ", "Kha"),
+    HijaiyahItem("د", "Dal"),
+    HijaiyahItem("ذ", "Dzal"),
+    HijaiyahItem("ر", "Ra"),
+    HijaiyahItem("ز", "Zai"),
+    HijaiyahItem("س", "Sin"),
+    HijaiyahItem("ش", "Syin"),
+    HijaiyahItem("ص", "Shad"),
+    HijaiyahItem("ض", "Dhad"),
+    HijaiyahItem("ط", "Tha"),
+    HijaiyahItem("ظ", "Zha"),
+    HijaiyahItem("ع", "Ain"),
+    HijaiyahItem("غ", "Ghain"),
+    HijaiyahItem("ف", "Fa"),
+    HijaiyahItem("ق", "Qaf"),
+    HijaiyahItem("ك", "Kaf"),
+    HijaiyahItem("ل", "Lam"),
+    HijaiyahItem("م", "Mim"),
+    HijaiyahItem("ن", "Nun"),
+    HijaiyahItem("و", "Wau"),
+    HijaiyahItem("ه", "Ha"),
+    HijaiyahItem("ء", "Hamzah"),
+    HijaiyahItem("ي", "Ya")
 )
 
 private fun letterIllustration(word: String): String = when (word) {
@@ -122,7 +156,7 @@ private fun AnakPintarApp() {
     DisposableEffect(context) {
         val engine = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
-                engineLanguage(speechEngine)
+                speechEngine?.language = Locale("id", "ID")
                 speechReady = true
             }
         }
@@ -144,8 +178,6 @@ private fun AnakPintarApp() {
     var page by rememberSaveable { mutableStateOf(Page.HOME) }
     var stars by rememberSaveable { mutableIntStateOf(0) }
 
-    // Tombol kembali bawaan HP: kembali ke halaman utama.
-    // Di halaman utama, sistem Android menangani tombol kembali.
     BackHandler(enabled = page != Page.HOME) {
         page = Page.HOME
     }
@@ -158,20 +190,17 @@ private fun AnakPintarApp() {
         Page.WARNA -> listOf(Color(0xFFF8BBD0), Color(0xFFE1BEE7))
         Page.HEWAN -> listOf(Color(0xFFC8E6C9), Color(0xFFFFF9C4))
         Page.PERMAINAN -> listOf(Color(0xFFFFE082), Color(0xFFFFCCBC))
-        Page.CERITA -> listOf(Color(0xFFB3E5FC), Color(0xFFD1C4E9))
+        Page.HIJAIYAH -> listOf(Color(0xFFB3E5FC), Color(0xFFD1C4E9))
         Page.PRESTASI -> listOf(Color(0xFFFFE082), Color(0xFFFFF8E1))
     }
 
     Surface(Modifier.fillMaxSize(), color = Color.Transparent) {
-        Box(
-            Modifier.fillMaxSize().background(Brush.verticalGradient(background))
-        ) {
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(background))) {
             Column(
                 Modifier.fillMaxSize()
                     .statusBarsPadding()
                     .navigationBarsPadding()
             ) {
-                // Tidak ada lagi tombol kembali buatan aplikasi.
                 when (page) {
                     Page.HOME -> HomeScreen(stars) { page = it }
                     Page.HURUF -> LetterScreen(::speak)
@@ -180,16 +209,12 @@ private fun AnakPintarApp() {
                     Page.WARNA -> ColorScreen(::speak)
                     Page.HEWAN -> AnimalScreen(::speak)
                     Page.PERMAINAN -> GameScreen(::speak) { stars++ }
-                    Page.CERITA -> StoryScreen(::speak)
+                    Page.HIJAIYAH -> HijaiyahScreen(::speak)
                     Page.PRESTASI -> AwardScreen(stars)
                 }
             }
         }
     }
-}
-
-private fun engineLanguage(engine: TextToSpeech?) {
-    engine?.language = Locale("id", "ID")
 }
 
 @Composable
@@ -207,12 +232,8 @@ private fun HomeScreen(stars: Int, onSelect: (Page) -> Unit) {
         ) {
             Text("🐾", fontSize = 27.sp)
             Spacer(Modifier.width(7.dp))
-            Text(
-                "M ANAK PINTAR",
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Black,
-                color = Color(0xFF174A91)
-            )
+            Text("M ANAK PINTAR", fontSize = 26.sp,
+                fontWeight = FontWeight.Black, color = Color(0xFF174A91))
             Spacer(Modifier.width(7.dp))
             Text("⭐", fontSize = 25.sp)
         }
@@ -226,52 +247,31 @@ private fun HomeScreen(stars: Int, onSelect: (Page) -> Unit) {
             shape = RoundedCornerShape(28.dp),
             colors = CardDefaults.cardColors(containerColor = Color.Transparent)
         ) {
-            Box(
-                Modifier.background(
-                    Brush.linearGradient(
-                        listOf(Color.White, Color(0xFFB5E9FF), Color(0xFF71C9F5))
-                    )
-                )
-            ) {
+            Box(Modifier.background(Brush.linearGradient(
+                listOf(Color.White, Color(0xFFB5E9FF), Color(0xFF71C9F5))
+            ))) {
                 Row(
                     Modifier.fillMaxWidth().padding(13.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
-                        Modifier.size(112.dp)
-                            .shadow(8.dp, CircleShape)
+                        Modifier.size(112.dp).shadow(8.dp, CircleShape)
                             .background(
-                                Brush.verticalGradient(
-                                    listOf(Color.White, Color(0xFFFFD8A4))
-                                ),
+                                Brush.verticalGradient(listOf(Color.White, Color(0xFFFFD8A4))),
                                 CircleShape
                             ),
                         contentAlignment = Alignment.Center
                     ) {
                         Text("🐱", fontSize = 76.sp)
                     }
-
                     Spacer(Modifier.width(12.dp))
-
                     Column(Modifier.weight(1f)) {
-                        Text(
-                            "Halo, Teman!",
-                            fontSize = 23.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color(0xFF174A91)
-                        )
-                        Text(
-                            "Aku Neko!",
-                            fontSize = 21.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color(0xFFE87525)
-                        )
-                        Text(
-                            "Ayo belajar sambil bermain!",
-                            fontSize = 13.sp,
-                            color = Color(0xFF315078),
-                            fontWeight = FontWeight.Bold
-                        )
+                        Text("Halo, Teman!", fontSize = 23.sp,
+                            fontWeight = FontWeight.Black, color = Color(0xFF174A91))
+                        Text("Aku Neko!", fontSize = 21.sp,
+                            fontWeight = FontWeight.ExtraBold, color = Color(0xFFE87525))
+                        Text("Ayo belajar sambil bermain!", fontSize = 13.sp,
+                            color = Color(0xFF315078), fontWeight = FontWeight.Bold)
                         Spacer(Modifier.height(5.dp))
                         Text("🌈 🎈 ⭐", fontSize = 22.sp)
                     }
@@ -282,51 +282,34 @@ private fun HomeScreen(stars: Int, onSelect: (Page) -> Unit) {
         Spacer(Modifier.height(12.dp))
 
         Card(
-            Modifier.fillMaxWidth()
-                .shadow(8.dp, RoundedCornerShape(20.dp))
+            Modifier.fillMaxWidth().shadow(8.dp, RoundedCornerShape(20.dp))
                 .clickable { onSelect(Page.PRESTASI) },
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(containerColor = Color.Transparent)
         ) {
             Row(
                 Modifier.fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(Color(0xFFFFF2B4), Color(0xFFFFCF55))
-                        )
-                    )
-                    .padding(12.dp),
+                    .background(Brush.verticalGradient(
+                        listOf(Color(0xFFFFF2B4), Color(0xFFFFCF55))
+                    )).padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text("🏆", fontSize = 28.sp)
                 Spacer(Modifier.width(10.dp))
-                Text(
-                    "Bintang prestasi: $stars",
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color(0xFF704214)
-                )
+                Text("Bintang prestasi: $stars", fontSize = 19.sp,
+                    fontWeight = FontWeight.Black, color = Color(0xFF704214))
                 Spacer(Modifier.width(8.dp))
                 Text("⭐", fontSize = 23.sp)
             }
         }
 
         Spacer(Modifier.height(16.dp))
-
-        Text(
-            "PILIH KEGIATAN BELAJAR",
-            fontSize = 17.sp,
-            fontWeight = FontWeight.Black,
-            color = Color(0xFF174A91)
-        )
-
+        Text("PILIH KEGIATAN BELAJAR", fontSize = 17.sp,
+            fontWeight = FontWeight.Black, color = Color(0xFF174A91))
         Spacer(Modifier.height(11.dp))
 
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(9.dp)
-        ) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
             HomeTile("🔤", "Belajar\nHuruf", Color(0xFFFF9BCB), Color(0xFFE95B9E),
                 Modifier.weight(1f)) { onSelect(Page.HURUF) }
             HomeTile("🔢", "Belajar\nAngka", Color(0xFFB4F18C), Color(0xFF63BD55),
@@ -337,10 +320,7 @@ private fun HomeScreen(stars: Int, onSelect: (Page) -> Unit) {
 
         Spacer(Modifier.height(10.dp))
 
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(9.dp)
-        ) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
             HomeTile("🎨", "Belajar\nWarna", Color(0xFFD1B8FF), Color(0xFF9670DF),
                 Modifier.weight(1f)) { onSelect(Page.WARNA) }
             HomeTile("🐘", "Belajar\nHewan", Color(0xFF9DEDB4), Color(0xFF4CB978),
@@ -351,12 +331,9 @@ private fun HomeScreen(stars: Int, onSelect: (Page) -> Unit) {
 
         Spacer(Modifier.height(10.dp))
 
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(9.dp)
-        ) {
-            HomeTile("📖", "Cerita\nAnak", Color(0xFFFFC58B), Color(0xFFE9954C),
-                Modifier.weight(1f)) { onSelect(Page.CERITA) }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+            HomeTile("🕌", "Belajar\nHijaiyah", Color(0xFFB8E6FF), Color(0xFF559AD9),
+                Modifier.weight(1f)) { onSelect(Page.HIJAIYAH) }
             HomeTile("🏆", "Nilai dan\nPrestasi", Color(0xFFFFB3B3), Color(0xFFE56F78),
                 Modifier.weight(1f)) { onSelect(Page.PRESTASI) }
             HomeTile("⭐", "Bintang\nSaya", Color(0xFFFFE58B), Color(0xFFE7B83B),
@@ -364,21 +341,13 @@ private fun HomeScreen(stars: Int, onSelect: (Page) -> Unit) {
         }
 
         Spacer(Modifier.height(17.dp))
-
-        Card(
-            shape = RoundedCornerShape(30.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xAAFFFFFF))
-        ) {
-            Text(
-                "🌼 Belajar itu menyenangkan bersama Neko! 🐱 🌼",
+        Card(shape = RoundedCornerShape(30.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xAAFFFFFF))) {
+            Text("🌼 Belajar itu menyenangkan bersama Neko! 🐱 🌼",
                 Modifier.padding(horizontal = 13.dp, vertical = 10.dp),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFF3159A8),
-                textAlign = TextAlign.Center
-            )
+                fontSize = 13.sp, fontWeight = FontWeight.ExtraBold,
+                color = Color(0xFF3159A8), textAlign = TextAlign.Center)
         }
-
         Spacer(Modifier.height(54.dp))
     }
 }
@@ -399,52 +368,26 @@ private fun HomeTile(
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
-        Box(
-            Modifier.fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color.White.copy(alpha = 0.95f), topColor, bottomColor)
-                    )
-                )
-        ) {
-            Box(
-                Modifier.align(Alignment.TopCenter)
-                    .fillMaxWidth(0.72f)
-                    .height(8.dp)
-                    .padding(horizontal = 5.dp)
-                    .background(
-                        Color.White.copy(alpha = 0.65f),
-                        RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
-                    )
-            )
-
-            Column(
-                Modifier.fillMaxSize().padding(5.dp),
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(
+            listOf(Color.White.copy(alpha = 0.95f), topColor, bottomColor)
+        ))) {
+            Box(Modifier.align(Alignment.TopCenter).fillMaxWidth(0.72f)
+                .height(8.dp).padding(horizontal = 5.dp)
+                .background(Color.White.copy(alpha = 0.65f),
+                    RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)))
+            Column(Modifier.fillMaxSize().padding(5.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Box(
-                    Modifier.size(53.dp)
-                        .shadow(4.dp, CircleShape)
-                        .background(
-                            Brush.verticalGradient(listOf(Color.White, Color(0xFFEAF7FF))),
-                            CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
+                verticalArrangement = Arrangement.Center) {
+                Box(Modifier.size(53.dp).shadow(4.dp, CircleShape)
+                    .background(Brush.verticalGradient(
+                        listOf(Color.White, Color(0xFFEAF7FF))), CircleShape),
+                    contentAlignment = Alignment.Center) {
                     Text(icon, fontSize = 32.sp)
                 }
-
                 Spacer(Modifier.height(7.dp))
-
-                Text(
-                    title,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color(0xFF26334A),
-                    textAlign = TextAlign.Center,
-                    lineHeight = 16.sp
-                )
+                Text(title, fontSize = 13.sp, fontWeight = FontWeight.Black,
+                    color = Color(0xFF26334A), textAlign = TextAlign.Center,
+                    lineHeight = 16.sp)
             }
         }
     }
@@ -452,40 +395,17 @@ private fun HomeTile(
 
 @Composable
 private fun PageHeading(title: String, subtitle: String) {
-    Column(
-        Modifier.fillMaxWidth().padding(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(Modifier.fillMaxWidth().padding(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally) {
         Text(title, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
         Text(subtitle, fontSize = 15.sp, color = Color.Gray)
     }
 }
 
 @Composable
-private fun LearningIllustration(emoji: String, caption: String, background: Color) {
-    Card(
-        Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = background)
-    ) {
-        Column(
-            Modifier.fillMaxWidth().padding(18.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(emoji, fontSize = 43.sp, textAlign = TextAlign.Center)
-            Spacer(Modifier.height(8.dp))
-            Text(caption, fontSize = 16.sp, fontWeight = FontWeight.Bold,
-                color = Color(0xFF3159A8), textAlign = TextAlign.Center)
-        }
-    }
-}
-
-@Composable
 private fun SpeechButton(text: String, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4779D5))
-    ) {
+    Button(onClick = onClick,
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4779D5))) {
         Text("🔊 $text", fontSize = 17.sp)
     }
 }
@@ -494,38 +414,27 @@ private fun SpeechButton(text: String, onClick: () -> Unit) {
 private fun LetterScreen(speak: (String) -> Unit) {
     var index by rememberSaveable { mutableIntStateOf(0) }
     val item = letters[index]
-
-    Card(
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFBCE7FF)),
+    Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFBCE7FF)),
         shape = RoundedCornerShape(28.dp),
-        modifier = Modifier.fillMaxWidth().padding(20.dp)
-    ) {
-        Column(
-            Modifier.fillMaxWidth().padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        modifier = Modifier.fillMaxWidth().padding(20.dp)) {
+        Column(Modifier.fillMaxWidth().padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally) {
             Text(item.letter, fontSize = 105.sp, fontWeight = FontWeight.Bold)
-            Text(
-                "${item.letter} untuk ${item.word}",
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
+            Text("${item.letter} untuk ${item.word}", fontSize = 25.sp,
+                fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
             Spacer(Modifier.height(8.dp))
             Text(letterIllustration(item.word), fontSize = 92.sp,
                 textAlign = TextAlign.Center)
             Spacer(Modifier.height(12.dp))
-            SpeechButton("Dengarkan") {
-                speak("${item.letter}, untuk ${item.word}")
-            }
+            SpeechButton("Dengarkan") { speak("${item.letter}, untuk ${item.word}") }
             Spacer(Modifier.height(10.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(onClick = {
-                    index = if (index == 0) 25 else index - 1
-                }) { Text("Sebelumnya") }
-                Button(onClick = {
-                    index = if (index == 25) 0 else index + 1
-                }) { Text("Berikutnya") }
+                Button(onClick = { index = if (index == 0) 25 else index - 1 }) {
+                    Text("Sebelumnya")
+                }
+                Button(onClick = { index = if (index == 25) 0 else index + 1 }) {
+                    Text("Berikutnya")
+                }
             }
             Text("${index + 1} dari 26 huruf", Modifier.padding(top = 8.dp))
         }
@@ -533,19 +442,115 @@ private fun LetterScreen(speak: (String) -> Unit) {
 }
 
 @Composable
+private fun HijaiyahScreen(speak: (String) -> Unit) {
+    var index by rememberSaveable { mutableIntStateOf(0) }
+    val item = hijaiyahLetters[index]
+
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        PageHeading("Belajar Huruf Hijaiyah", "Kenali dan dengarkan 29 huruf hijaiyah")
+
+        Card(
+            Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(28.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFE4F5FF))
+        ) {
+            Column(
+                Modifier.fillMaxWidth().padding(18.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Huruf ke-${index + 1}", fontSize = 16.sp,
+                    color = Color(0xFF3159A8), fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(8.dp))
+                Text(item.letter, fontSize = 112.sp,
+                    fontWeight = FontWeight.Bold, color = Color(0xFF174A91))
+                Text(item.name, fontSize = 30.sp,
+                    fontWeight = FontWeight.ExtraBold, color = Color(0xFFE87525))
+                Spacer(Modifier.height(12.dp))
+                SpeechButton("Dengarkan") {
+                    speak(item.name)
+                }
+                Spacer(Modifier.height(12.dp))
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        enabled = index > 0,
+                        onClick = { index-- }
+                    ) {
+                        Text("Sebelumnya")
+                    }
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        enabled = index < hijaiyahLetters.lastIndex,
+                        onClick = { index++ }
+                    ) {
+                        Text("Berikutnya")
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+        Text("Pilih huruf", fontSize = 20.sp,
+            fontWeight = FontWeight.ExtraBold, color = Color(0xFF174A91))
+        Spacer(Modifier.height(10.dp))
+
+        hijaiyahLetters.chunked(4).forEach { rowItems ->
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                rowItems.forEach { letter ->
+                    val letterIndex = hijaiyahLetters.indexOf(letter)
+                    val selected = letterIndex == index
+                    Card(
+                        modifier = Modifier.weight(1f)
+                            .padding(vertical = 4.dp)
+                            .clickable { index = letterIndex },
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (selected) Color(0xFFFFD166)
+                            else Color(0xFFFFFFFF)
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Column(
+                            Modifier.fillMaxWidth().padding(vertical = 7.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(letter.letter, fontSize =  thirtySp,
+                                color = Color(0xFF174A91), fontWeight = FontWeight.Bold)
+                            Text(letter.name, fontSize = 10.sp,
+                                color = Color(0xFF315078))
+                        }
+                    }
+                }
+                repeat(4 - rowItems.size) {
+                    Spacer(Modifier.weight(1f))
+                }
+            }
+        }
+        Spacer(Modifier.height(30.dp))
+    }
+}
+
+private val thirtySp = 30.sp
+
+@Composable
 private fun NumberScreen(speak: (String) -> Unit) {
     var number by rememberSaveable { mutableIntStateOf(1) }
     val word = numberWords(number)
-
-    Card(
-        Modifier.fillMaxWidth().padding(20.dp),
+    Card(Modifier.fillMaxWidth().padding(20.dp),
         shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFDDAA))
-    ) {
-        Column(
-            Modifier.fillMaxWidth().padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFDDAA))) {
+        Column(Modifier.fillMaxWidth().padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally) {
             Text(number.toString(), fontSize = 95.sp, fontWeight = FontWeight.Bold)
             Text(word, fontSize = 27.sp, fontWeight = FontWeight.Bold)
             Text(numberIllustration(number), fontSize = 65.sp)
@@ -567,22 +572,15 @@ private fun NumberScreen(speak: (String) -> Unit) {
 
 @Composable
 private fun MathObjectGroup(count: Int, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF1D6))
-    ) {
-        Column(
-            Modifier.fillMaxWidth().padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+    Card(modifier = modifier, shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF1D6))) {
+        Column(Modifier.fillMaxWidth().padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally) {
             Text("$count apel", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
             (1..count).toList().chunked(5).forEach { group ->
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically) {
                     group.forEach {
                         Text("🍎", fontSize = 27.sp)
                         Spacer(Modifier.width(2.dp))
@@ -597,45 +595,32 @@ private fun MathObjectGroup(count: Int, modifier: Modifier = Modifier) {
 private fun MathScreen(onSpeak: (String) -> Unit, onCorrect: () -> Unit) {
     var question by remember { mutableStateOf(newMathQuestion()) }
     var message by remember { mutableStateOf("Pilih jawaban yang benar!") }
-
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally) {
         PageHeading("Belajar Berhitung", "Ayo berlatih matematika!")
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically) {
             MathObjectGroup(question.first, Modifier.weight(1f))
             Text(question.symbol, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold)
             MathObjectGroup(question.second, Modifier.weight(1f))
         }
         Spacer(Modifier.height(18.dp))
-        Text(
-            "${question.first} ${question.symbol} ${question.second} = ?",
-            fontSize = 36.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = Color(0xFF3159A8),
-            textAlign = TextAlign.Center
-        )
+        Text("${question.first} ${question.symbol} ${question.second} = ?",
+            fontSize = 36.sp, fontWeight = FontWeight.ExtraBold,
+            color = Color(0xFF3159A8), textAlign = TextAlign.Center)
         Spacer(Modifier.height(18.dp))
         question.choices.forEach { choice ->
-            Button(
-                onClick = {
-                    if (choice == question.answer) {
-                        message = "Hebat! Jawabanmu benar! ⭐"
-                        onCorrect()
-                        onSpeak("Hebat! Jawabanmu benar!")
-                        question = newMathQuestion()
-                    } else {
-                        message = "Belum tepat. Coba lagi ya!"
-                        onSpeak("Coba lagi ya")
-                    }
-                },
-                Modifier.fillMaxWidth().padding(vertical = 5.dp)
-            ) {
+            Button(onClick = {
+                if (choice == question.answer) {
+                    message = "Hebat! Jawabanmu benar! ⭐"
+                    onCorrect()
+                    onSpeak("Hebat! Jawabanmu benar!")
+                    question = newMathQuestion()
+                } else {
+                    message = "Belum tepat. Coba lagi ya!"
+                    onSpeak("Coba lagi ya")
+                }
+            }, Modifier.fillMaxWidth().padding(vertical = 5.dp)) {
                 Text(choice.toString(), fontSize = 23.sp)
             }
         }
@@ -662,21 +647,15 @@ private fun ColorScreen(speak: (String) -> Unit) {
     )
     var index by rememberSaveable { mutableIntStateOf(0) }
     val item = colors[index]
-    Card(
-        Modifier.fillMaxWidth().padding(20.dp),
+    Card(Modifier.fillMaxWidth().padding(20.dp),
         shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF3DDF0))
-    ) {
-        Column(
-            Modifier.fillMaxWidth().padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF3DDF0))) {
+        Column(Modifier.fillMaxWidth().padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally) {
             Text(item.name, fontSize = 30.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(22.dp))
-            Box(
-                Modifier.size(190.dp).background(item.color, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(Modifier.size(190.dp).background(item.color, CircleShape),
+                contentAlignment = Alignment.Center) {
                 if (item.name == "Putih") {
                     Text("PUTIH", color = Color.Gray, fontSize = 22.sp,
                         fontWeight = FontWeight.Bold)
@@ -685,20 +664,11 @@ private fun ColorScreen(speak: (String) -> Unit) {
             Spacer(Modifier.height(22.dp))
             SpeechButton("Dengarkan") { speak(item.name) }
             Spacer(Modifier.height(14.dp))
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Button(
-                    enabled = index > 0,
-                    onClick = { index-- },
-                    modifier = Modifier.weight(1f)
-                ) { Text("Sebelumnya") }
-                Button(
-                    enabled = index < colors.lastIndex,
-                    onClick = { index++ },
-                    modifier = Modifier.weight(1f)
-                ) { Text("Berikutnya") }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Button(enabled = index > 0, onClick = { index-- },
+                    modifier = Modifier.weight(1f)) { Text("Sebelumnya") }
+                Button(enabled = index < colors.lastIndex, onClick = { index++ },
+                    modifier = Modifier.weight(1f)) { Text("Berikutnya") }
             }
             Text("Warna ${index + 1} dari ${colors.size}",
                 Modifier.padding(top = 12.dp))
@@ -716,18 +686,14 @@ private fun AnimalScreen(speak: (String) -> Unit) {
         "🐼" to "Panda", "🦋" to "Kupu-kupu", "🐢" to "Kura-kura",
         "🦒" to "Jerapah"
     )
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),
+        horizontalAlignment = Alignment.CenterHorizontally) {
         PageHeading("Belajar Hewan", "Kenali nama-nama hewan")
         animals.forEach { (emoji, name) ->
-            Card(
-                Modifier.fillMaxWidth().padding(vertical = 5.dp)
-                    .clickable { speak(name) },
+            Card(Modifier.fillMaxWidth().padding(vertical = 5.dp)
+                .clickable { speak(name) },
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFD8F1E0)),
-                shape = RoundedCornerShape(16.dp)
-            ) {
+                shape = RoundedCornerShape(16.dp)) {
                 Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(emoji, fontSize = 36.sp)
                     Spacer(Modifier.width(18.dp))
@@ -747,100 +713,60 @@ private fun GameScreen(onSpeak: (String) -> Unit, onCorrect: () -> Unit) {
     val choices = remember(question) {
         (letters.filter { it.letter != question.letter }.shuffled().take(3) + question).shuffled()
     }
-
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally) {
         PageHeading("Permainan Tebak Huruf", "Belajar bersama Neko!")
-
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Card(
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF246B45))
-            ) {
-                Column(
-                    Modifier.fillMaxWidth().padding(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        "PAPAN PERMAINAN",
-                        color = Color(0xFFFFE082),
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.ExtraBold
-                    )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Card(modifier = Modifier.weight(1f), shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF246B45))) {
+                Column(Modifier.fillMaxWidth().padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("PAPAN PERMAINAN", color = Color(0xFFFFE082),
+                        fontSize = 15.sp, fontWeight = FontWeight.ExtraBold)
                     Spacer(Modifier.height(12.dp))
-                    Text(
-                        "${question.word} dimulai dengan huruf apa?",
-                        color = Color.White,
-                        fontSize = 19.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 25.sp
-                    )
+                    Text("${question.word} dimulai dengan huruf apa?",
+                        color = Color.White, fontSize = 19.sp,
+                        fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
+                        lineHeight = 25.sp)
                     Spacer(Modifier.height(14.dp))
-
                     choices.chunked(2).forEach { rowChoices ->
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
+                        Row(Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             rowChoices.forEach { choice ->
-                                Button(
-                                    onClick = {
-                                        if (choice.letter == question.letter) {
-                                            message = "Benar! Kamu pintar! ⭐"
-                                            onCorrect()
-                                            onSpeak("Benar! ${question.word} dimulai dengan huruf ${question.letter}")
-                                            question = letters.random()
-                                        } else {
-                                            message = "Belum benar. Coba lagi!"
-                                            onSpeak("Coba lagi")
-                                        }
-                                    },
-                                    modifier = Modifier.weight(1f).padding(vertical = 3.dp),
+                                Button(onClick = {
+                                    if (choice.letter == question.letter) {
+                                        message = "Benar! Kamu pintar! ⭐"
+                                        onCorrect()
+                                        onSpeak("Benar! ${question.word} dimulai dengan huruf ${question.letter}")
+                                        question = letters.random()
+                                    } else {
+                                        message = "Belum benar. Coba lagi!"
+                                        onSpeak("Coba lagi")
+                                    }
+                                }, modifier = Modifier.weight(1f).padding(vertical = 3.dp),
                                     shape = RoundedCornerShape(12.dp),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = Color(0xFFFFD166),
-                                        contentColor = Color(0xFF26334A)
-                                    )
-                                ) {
+                                        contentColor = Color(0xFF26334A))) {
                                     Text(choice.letter, fontSize = 23.sp,
                                         fontWeight = FontWeight.ExtraBold)
                                 }
                             }
                         }
                     }
-
                     Spacer(Modifier.height(10.dp))
-                    Text(
-                        message,
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
+                    Text(message, color = Color.White, fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
                 }
             }
-
-            Column(
-                modifier = Modifier.width(76.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
+            Column(Modifier.width(76.dp), horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center) {
                 Text("🐱", fontSize = 55.sp)
-                Text("Neko", fontSize = 16.sp,
-                    fontWeight = FontWeight.ExtraBold,
+                Text("Neko", fontSize = 16.sp, fontWeight = FontWeight.ExtraBold,
                     color = Color(0xFF3159A8))
-                Text("Ayo jawab!", fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF3159A8),
-                    textAlign = TextAlign.Center)
+                Text("Ayo jawab!", fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                    color = Color(0xFF3159A8), textAlign = TextAlign.Center)
                 Text("👉", fontSize = 27.sp)
             }
         }
@@ -848,66 +774,25 @@ private fun GameScreen(onSpeak: (String) -> Unit, onCorrect: () -> Unit) {
 }
 
 @Composable
-private fun StoryScreen(speak: (String) -> Unit) {
-    val stories = listOf(
-        "Neko dan Kupu-Kupu" to
-            "Pada suatu pagi, Neko bermain di taman. Ia melihat kupu-kupu yang cantik. Neko tidak menangkapnya. Ia membiarkan kupu-kupu terbang bebas. Neko senang karena bisa menyayangi makhluk hidup.",
-        "Anak yang Rajin" to
-            "Dina bangun pagi. Ia merapikan tempat tidur dan membantu ibu. Setelah itu Dina belajar membaca. Ibu memuji Dina karena rajin dan suka membantu. Dina merasa bahagia."
-    )
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        PageHeading("Cerita Anak", "Dengarkan cerita yang menyenangkan")
-        stories.forEach { (title, story) ->
-            Card(
-                Modifier.fillMaxWidth().padding(vertical = 9.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFDDF2FF)),
-                shape = RoundedCornerShape(20.dp)
-            ) {
-                Column(Modifier.padding(18.dp)) {
-                    Text(title, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                    Spacer(Modifier.height(10.dp))
-                    Text(story, fontSize = 17.sp, lineHeight = 25.sp)
-                    Spacer(Modifier.height(12.dp))
-                    SpeechButton("Dengarkan cerita") { speak(story) }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun AwardScreen(stars: Int) {
-    Column(
-        Modifier.fillMaxSize().padding(22.dp),
+    Column(Modifier.fillMaxSize().padding(22.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
+        verticalArrangement = Arrangement.Center) {
         Text("🏆", fontSize = 90.sp)
         Text("Prestasi Belajar", fontSize = 29.sp, fontWeight = FontWeight.ExtraBold)
         Spacer(Modifier.height(18.dp))
-        Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFE18B)),
-            shape = RoundedCornerShape(25.dp)
-        ) {
-            Column(
-                Modifier.padding(28.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+        Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFFFE18B)),
+            shape = RoundedCornerShape(25.dp)) {
+            Column(Modifier.padding(28.dp),
+                horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("⭐", fontSize = 55.sp)
                 Text("$stars Bintang", fontSize = 30.sp, fontWeight = FontWeight.Bold)
-                Text(
-                    when {
-                        stars >= 20 -> "Luar biasa! Kamu hebat!"
-                        stars >= 10 -> "Hebat! Terus belajar!"
-                        stars >= 5 -> "Bagus! Terus berlatih!"
-                        else -> "Ayo bermain dan kumpulkan bintang!"
-                    },
-                    fontSize = 17.sp,
-                    textAlign = TextAlign.Center
-                )
+                Text(when {
+                    stars >= 20 -> "Luar biasa! Kamu hebat!"
+                    stars >= 10 -> "Hebat! Terus belajar!"
+                    stars >= 5 -> "Bagus! Terus berlatih!"
+                    else -> "Ayo bermain dan kumpulkan bintang!"
+                }, fontSize = 17.sp, textAlign = TextAlign.Center)
             }
         }
     }
