@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -143,6 +144,12 @@ private fun AnakPintarApp() {
     var page by rememberSaveable { mutableStateOf(Page.HOME) }
     var stars by rememberSaveable { mutableIntStateOf(0) }
 
+    // Tombol kembali bawaan HP: kembali ke halaman utama.
+    // Di halaman utama, sistem Android menangani tombol kembali.
+    BackHandler(enabled = page != Page.HOME) {
+        page = Page.HOME
+    }
+
     val background = when (page) {
         Page.HOME -> listOf(Color(0xFF63C9F4), Color(0xFFB8ECFF), Color(0xFFFFF1C5))
         Page.HURUF -> listOf(Color(0xFFB9F6CA), Color(0xFFE8F5E9))
@@ -159,35 +166,12 @@ private fun AnakPintarApp() {
         Box(
             Modifier.fillMaxSize().background(Brush.verticalGradient(background))
         ) {
-            // Area aman agar konten tidak tertutup status bar dan navigasi.
             Column(
                 Modifier.fillMaxSize()
                     .statusBarsPadding()
                     .navigationBarsPadding()
             ) {
-                if (page != Page.HOME) {
-                    Row(
-                        Modifier.fillMaxWidth()
-                            .background(
-                                Brush.verticalGradient(
-                                    listOf(Color(0xFF477FD0), Color(0xFF244B91))
-                                )
-                            )
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "← Kembali",
-                            color = Color.White,
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.clickable { page = Page.HOME }
-                        )
-                        Spacer(Modifier.weight(1f))
-                        Text("⭐ $stars", color = Color.White, fontSize = 18.sp)
-                    }
-                }
-
+                // Tidak ada lagi tombol kembali buatan aplikasi.
                 when (page) {
                     Page.HOME -> HomeScreen(stars) { page = it }
                     Page.HURUF -> LetterScreen(::speak)
@@ -207,8 +191,6 @@ private fun AnakPintarApp() {
 private fun engineLanguage(engine: TextToSpeech?) {
     engine?.language = Locale("id", "ID")
 }
-
-/* HALAMAN UTAMA */
 
 @Composable
 private fun HomeScreen(stars: Int, onSelect: (Page) -> Unit) {
@@ -397,7 +379,6 @@ private fun HomeScreen(stars: Int, onSelect: (Page) -> Unit) {
             )
         }
 
-        // Ruang tambahan pada bagian bawah halaman.
         Spacer(Modifier.height(54.dp))
     }
 }
@@ -468,8 +449,6 @@ private fun HomeTile(
         }
     }
 }
-
-/* KOMPONEN DAN HALAMAN BELAJAR */
 
 @Composable
 private fun PageHeading(title: String, subtitle: String) {
