@@ -1,3 +1,4 @@
+
 package com.m.anakpintar
 
 import android.os.Bundle
@@ -158,7 +159,12 @@ private fun AnakPintarApp() {
         Box(
             Modifier.fillMaxSize().background(Brush.verticalGradient(background))
         ) {
-            Column(Modifier.fillMaxSize()) {
+            // Area aman agar konten tidak tertutup status bar dan navigasi.
+            Column(
+                Modifier.fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+            ) {
                 if (page != Page.HOME) {
                     Row(
                         Modifier.fillMaxWidth()
@@ -241,7 +247,7 @@ private fun HomeScreen(stars: Int, onSelect: (Page) -> Unit) {
             Box(
                 Modifier.background(
                     Brush.linearGradient(
-                        listOf(Color(0xFFFFFFFF), Color(0xFFB5E9FF), Color(0xFF71C9F5))
+                        listOf(Color.White, Color(0xFFB5E9FF), Color(0xFF71C9F5))
                     )
                 )
             ) {
@@ -391,7 +397,8 @@ private fun HomeScreen(stars: Int, onSelect: (Page) -> Unit) {
             )
         }
 
-        Spacer(Modifier.height(14.dp))
+        // Ruang tambahan pada bagian bawah halaman.
+        Spacer(Modifier.height(54.dp))
     }
 }
 
@@ -415,11 +422,7 @@ private fun HomeTile(
             Modifier.fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        listOf(
-                            Color.White.copy(alpha = 0.95f),
-                            topColor,
-                            bottomColor
-                        )
+                        listOf(Color.White.copy(alpha = 0.95f), topColor, bottomColor)
                     )
                 )
         ) {
@@ -443,9 +446,7 @@ private fun HomeTile(
                     Modifier.size(53.dp)
                         .shadow(4.dp, CircleShape)
                         .background(
-                            Brush.verticalGradient(
-                                listOf(Color.White, Color(0xFFEAF7FF))
-                            ),
+                            Brush.verticalGradient(listOf(Color.White, Color(0xFFEAF7FF))),
                             CircleShape
                         ),
                     contentAlignment = Alignment.Center
