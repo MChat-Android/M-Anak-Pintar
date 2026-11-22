@@ -8,6 +8,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -390,7 +393,8 @@ private fun HomeScreen(
                         .background(Color(0xFFFFD8A4), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("🐱", fontSize = 76.sp)
+                Image(
+                  painter = painterResource(id = R.drawable.neko_3d),contentDescription = "Neko 3D",modifier = Modifier.fillMaxSize(),contentScale = ContentScale.Fit)
                 }
 
                 Spacer(Modifier.width(12.dp))
@@ -1393,7 +1397,9 @@ private fun GameScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text("🐱", fontSize = 55.sp)
+                
+            Image(
+              painter = painterResource(id = R.drawable.neko_3d),contentDescription = "Neko 3D",modifier = Modifier.size(76.dp),contentScale = ContentScale.Fit)
 
                 Text(
                     "Neko",
